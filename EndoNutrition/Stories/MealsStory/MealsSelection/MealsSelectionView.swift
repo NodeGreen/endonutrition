@@ -164,11 +164,10 @@ struct MealsSelectionView_Previews: PreviewProvider {
     // Container ottimizzato per il preview
     struct MealsSelectionViewContainer: View {
         @State private var meals: [Meal] = [
-            Meal(id: 0, color: .blue, title: "Colazione"),
-            Meal(id: 1, color: .red, title: "Pranzo"),
-            Meal(id: 2, color: .green, title: "Cena")
+            Meal(id: 0, color: .blue, title: "Colazione", mealType: .breakfast),
+            Meal(id: 1, color: .red, title: "Pranzo", mealType: .lunch),
+            Meal(id: 2, color: .green, title: "Cena", mealType: .dinner)
         ]
-        
         @State private var hasInteracted: Bool = false
         
         @State private var selectedMeal: Meal?

@@ -41,5 +41,5 @@ struct MealCardView: View {
 }
 
 #Preview {
-    MealCardView(card: Meal(id: 0, color: .red, title: "Pasto"), isTopCard: true, offset: 0, cornerRadius: 20, height: 450, index: 0)
+    MealCardView(card: Meal(id: 0, color: .red, title: "Pasto", mealType: .lunch), isTopCard: true, offset: 0, cornerRadius: 20, height: 450, index: 0)
 }
