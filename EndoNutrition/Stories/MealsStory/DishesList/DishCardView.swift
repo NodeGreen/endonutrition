@@ -34,7 +34,7 @@ struct DishCardView: View {
                 Spacer()
                 HStack {
                     Spacer()
-                    Text("\(dish.ingredientsCount) ingredienti")
+                    Text("dish.ingredients.count".localizedFormat(arguments: dish.ingredientsCount, table: "Meals"))
                         .font(.footnote)
                         .fontWeight(.semibold)
                         .foregroundColor(Color(UIColor.label).opacity(0.4))

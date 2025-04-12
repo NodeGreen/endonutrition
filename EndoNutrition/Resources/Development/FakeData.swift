@@ -118,7 +118,7 @@ let dishes: [Dish] = [
     Dish(
         name: "Zuppa di legumi",
         mealType: .lunch,
-        executionTime: .elaborate,
+        executionTime: .slow,
         ingredients: [
             Dish.Ingredients(name: "Lenticchie", quantity: 80, quantityType: .grams),
             Dish.Ingredients(name: "Carote", quantity: 50, quantityType: .grams),

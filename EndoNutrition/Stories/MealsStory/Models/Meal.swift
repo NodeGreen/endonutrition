@@ -19,13 +19,13 @@ struct Meal: Identifiable, Equatable {
     var title: String {
         switch mealType {
         case .breakfast:
-            return "Breakfast"
+            return "meal.type.breakfast".localized(table: "Meals")
         case .lunch:
-            return "Lunch"
+            return "meal.type.lunch".localized(table: "Meals")
         case .dinner:
-            return "Dinner"
+            return "meal.type.dinner".localized(table: "Meals")
         case .custom:
-            return "Custom"
+            return "meal.type.custom".localized(table: "Meals")
         }
     }
     var imageName: String {

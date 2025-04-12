@@ -13,7 +13,7 @@ struct ContentView: View {
             MealsHomeView()
                 .tabItem {
                     Image(systemName: "fork.knife")
-                    Text("mealshome.title".localized(table: "Meals"))
+                    Text("meals.home.title".localized(table: "Meals"))
                 }
             
             ShoppingListHomeView()

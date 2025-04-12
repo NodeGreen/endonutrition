@@ -21,11 +21,11 @@ struct Dish: Identifiable {
     var executionTimeString: String {
         switch executionTime {
         case .fast:
-            return "veloce"
+            return "dish.execution.fast".localized(table: "Meals")
         case .medium:
-            return "medio"
-        case .elaborate:
-            return "elaborato"
+            return "dish.execution.medium".localized(table: "Meals")
+        case .slow:
+            return "dish.execution.slow".localized(table: "Meals")
         }
     }
     
@@ -35,7 +35,7 @@ struct Dish: Identifiable {
             return .green
         case .medium:
             return .orange
-        case .elaborate:
+        case .slow:
             return .red
         }
     }
@@ -51,7 +51,7 @@ struct Dish: Identifiable {
     enum ExecutionTime {
         case fast
         case medium
-        case elaborate
+        case slow
     }
     
     enum QuantityType {
