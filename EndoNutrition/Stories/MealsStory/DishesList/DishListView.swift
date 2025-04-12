@@ -13,10 +13,10 @@ struct DishListView: View {
     @Binding var dishes: [Dish] 
     
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 4) {
             HStack {
                 Text("dishes.title".localized(table: "Meals"))
-                    .font(.headline)
+                    .font(.title3)
                     .fontWeight(.bold)
                 
                 Spacer()
@@ -26,10 +26,11 @@ struct DishListView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(spacing: 12) {
                     ForEach(Array(dishes.prefix(10))) { dish in
-                        DishCardView(title: dish.name)
-                            .aspectRatio(1, contentMode: .fit)
+                        DishCardView(dish: dish)
+                            .aspectRatio(1, contentMode: .fill)
                     }
-                }
+                    
+                }.padding(.horizontal)
             }
         }
     }
@@ -46,7 +47,17 @@ struct DishListView_Previews: PreviewProvider {
     // Container ottimizzato per il preview
     struct MealsSelectionViewContainer: View {
         
-        @State private var dishes: [Dish] = []
+        @State private var dishes: [Dish] = [Dish(
+            name: "Pancake integrali",
+            mealType: .breakfast,
+            executionTime: .medium,
+            ingredients: [
+                Dish.Ingredients(name: "Farina integrale", quantity: 150, quantityType: .grams),
+                Dish.Ingredients(name: "Uova", quantity: 2, quantityType: .number),
+                Dish.Ingredients(name: "Latte", quantity: 200, quantityType: .grams),
+                Dish.Ingredients(name: "Miele", quantity: 30, quantityType: .grams)
+            ]
+        )]
         
         var body: some View {
             DishListView(dishes: $dishes)

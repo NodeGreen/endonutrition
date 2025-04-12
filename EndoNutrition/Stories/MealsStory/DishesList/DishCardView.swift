@@ -1,47 +1,114 @@
-//
-//  DishCardView.swift
-//  EndoNutrition
-//
-//  Created by Endo on 12/04/25.
-//
-
 import SwiftUI
 import Foundation
 
 struct DishCardView: View {
-    let title: String
-    
-    // Funzione per generare un colore pastello casuale
-    private var pastelColor: Color {
-        let pastelColors: [Color] = [
-            Color(red: 0.95, green: 0.8, blue: 0.8),   // Rosa pastello
-            Color(red: 0.8, green: 0.95, blue: 0.8),   // Verde menta
-            Color(red: 0.8, green: 0.8, blue: 0.95),   // Azzurro pastello
-            Color(red: 0.95, green: 0.95, blue: 0.8),  // Giallo pastello
-            Color(red: 0.95, green: 0.8, blue: 0.95),  // Lilla pastello
-            Color(red: 0.8, green: 0.95, blue: 0.95),  // Celeste pastello
-            Color(red: 0.9, green: 0.85, blue: 0.7)    // Beige pastello
-        ]
-        
-        return pastelColors.randomElement() ?? Color(red: 0.9, green: 0.9, blue: 0.9)
-    }
+    let dish: Dish
     
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 10)
-                .fill(pastelColor)
-                .shadow(color: Color.black.opacity(0.1), radius: 3, x: 0, y: 2)
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.darkModeBgColor)
+                .shadow(radius: 2, x: 0, y: 1)
             
-            Text(title)
-                .font(.subheadline)
-                .fontWeight(.medium)
-                .foregroundColor(.primary)
-                .multilineTextAlignment(.center)
-                .padding(8)
-        }
+            VStack(alignment: .center, spacing: 10) {
+                HStack {
+                    Spacer()
+                    Text(dish.executionTimeString)
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(dish.executionTimeColor)
+                        .padding(.top, 8)
+                        .padding(.trailing, 16)
+                }
+                HStack {
+                    Text(dish.name)
+                        .font(.title3)
+                        .fontWeight(.semibold)
+                        .foregroundColor(Color(UIColor.label))
+                        .lineLimit(3)
+                        .multilineTextAlignment(.leading)
+                        .padding(.horizontal)
+                    Spacer()
+                }
+                
+                Spacer()
+                HStack {
+                    Spacer()
+                    Text("\(dish.ingredientsCount) ingredienti")
+                        .font(.footnote)
+                        .fontWeight(.semibold)
+                        .foregroundColor(Color(UIColor.label).opacity(0.4))
+                        .padding(.bottom, 8)
+                        .padding(.trailing, 16)
+                }
+            }
+        }.padding(.vertical, 8)
     }
 }
 
 #Preview {
-    DishCardView(title: "Primo")
+    VStack {
+        ScrollView(.horizontal, showsIndicators: false) {
+            LazyHStack(spacing: 12) {
+                DishCardView(dish: Dish(
+                    name: "Pancake integrali",
+                    mealType: .breakfast,
+                    executionTime: .medium,
+                    ingredients: [
+                        Dish.Ingredients(name: "Farina integrale", quantity: 150, quantityType: .grams),
+                        Dish.Ingredients(name: "Uova", quantity: 2, quantityType: .number),
+                        Dish.Ingredients(name: "Latte", quantity: 200, quantityType: .grams),
+                        Dish.Ingredients(name: "Miele", quantity: 30, quantityType: .grams)
+                    ]
+                ))
+                    .aspectRatio(1, contentMode:.fill)
+                DishCardView(dish: Dish(
+                    name: "Pancake integrali",
+                    mealType: .breakfast,
+                    executionTime: .medium,
+                    ingredients: [
+                        Dish.Ingredients(name: "Farina integrale", quantity: 150, quantityType: .grams),
+                        Dish.Ingredients(name: "Uova", quantity: 2, quantityType: .number),
+                        Dish.Ingredients(name: "Latte", quantity: 200, quantityType: .grams),
+                        Dish.Ingredients(name: "Miele", quantity: 30, quantityType: .grams)
+                    ]
+                ))
+                    .aspectRatio(1, contentMode:.fill)
+            }
+        }.frame(height: 200)
+    }
+    .preferredColorScheme(.light)
+
+    
+    VStack {
+        ScrollView(.horizontal, showsIndicators: false) {
+            LazyHStack(spacing: 12) {
+                DishCardView(dish: Dish(
+                    name: "Pancake integrali",
+                    mealType: .breakfast,
+                    executionTime: .medium,
+                    ingredients: [
+                        Dish.Ingredients(name: "Farina integrale", quantity: 150, quantityType: .grams),
+                        Dish.Ingredients(name: "Uova", quantity: 2, quantityType: .number),
+                        Dish.Ingredients(name: "Latte", quantity: 200, quantityType: .grams),
+                        Dish.Ingredients(name: "Miele", quantity: 30, quantityType: .grams)
+                    ]
+                ))
+                    .aspectRatio(1, contentMode:.fill)
+                DishCardView(dish: Dish(
+                    name: "Pancake integrali",
+                    mealType: .breakfast,
+                    executionTime: .medium,
+                    ingredients: [
+                        Dish.Ingredients(name: "Farina integrale", quantity: 150, quantityType: .grams),
+                        Dish.Ingredients(name: "Uova", quantity: 2, quantityType: .number),
+                        Dish.Ingredients(name: "Latte", quantity: 200, quantityType: .grams),
+                        Dish.Ingredients(name: "Miele", quantity: 30, quantityType: .grams)
+                    ]
+                ))
+                    .aspectRatio(1, contentMode:.fill)
+            }
+        }.frame(height: 200)
+    }
+    .preferredColorScheme(.dark)
 }

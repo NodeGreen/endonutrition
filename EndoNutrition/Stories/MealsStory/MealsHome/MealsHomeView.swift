@@ -14,18 +14,18 @@ struct MealsHomeView: View {
             VStack(spacing: 20) {
  
                 MealsSelectionView(
-                    cards: $viewModel.meals,
+                    cards: $viewModel.localMeals,
                     hasInteracted: $viewModel.hasInteracted,
                     onCardSelected: { card in
                         viewModel.selectCard(card)
                     }
                 )
-                .frame(height: geometry.size.height * 0.65)
+                .frame(height: geometry.size.height * 0.70)
+                .padding(.horizontal)
                 
                 DishListView(dishes: $viewModel.mealDishes)
                    
             }
-            .padding()
         }.onAppear {
             viewModel.setup()
         }

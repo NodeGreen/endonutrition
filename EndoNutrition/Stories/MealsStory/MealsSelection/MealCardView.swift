@@ -9,34 +9,42 @@
 import SwiftUI
 
 struct MealCardView: View {
-    // Parametri di sola lettura per ottimizzare la ricostruzione
-    let card: Meal
+    let meal: Meal
     let isTopCard: Bool
     let offset: CGFloat
     let cornerRadius: CGFloat
     let index: Int
     
-    // Rendimento ottimizzato evitando ricalcoli inutili
     var body: some View {
-        RoundedRectangle(cornerRadius: cornerRadius)
-            .fill(card.color)
-            .overlay(
-                Text(card.title)
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                    // Ottimizzazione rendering testo
-                    .fixedSize(horizontal: false, vertical: true)
+        ZStack(alignment: .topLeading) {
+            // Immagine con bordi arrotondati
+            Image(meal.imageName)
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
+                .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
+
+            LinearGradient(
+                gradient: Gradient(colors: [Color.black.opacity(0.7), Color.black.opacity(0)]),
+                startPoint: .top,
+                endPoint: .center
             )
-            // Ottimizzazione shadow (raggio ridotto)
-            .shadow(radius: 2)
-            // Offset condizionale per evitare calcoli inutili
-            .if(isTopCard) { view in
-                view.offset(x: offset)
-            }
+            .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
+            
+            Text(meal.title)
+                .font(.title)
+                .fontWeight(.bold)
+                .foregroundColor(.white)
+                .padding([.top, .leading], 16)
+                .shadow(color: .black.opacity(0.5), radius: 2, x: 0, y: 1)
+        }
+        .shadow(radius: 5)
+        .if(isTopCard) { view in
+            view.offset(x: offset)
+        }
     }
 }
 
 #Preview {
-    MealCardView(card: Meal(id: 0, color: .red, title: "Pasto", mealType: .lunch), isTopCard: true, offset: 0, cornerRadius: 20, index: 0)
+    MealCardView(meal: Meal(id: 0, mealType: .lunch), isTopCard: true, offset: 0, cornerRadius: 20, index: 0)
 }

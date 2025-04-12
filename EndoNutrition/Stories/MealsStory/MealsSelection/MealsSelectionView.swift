@@ -35,7 +35,7 @@ struct MealsSelectionView: View {
             // Ottimizzazione del rendering: solo le card visibili
             ForEach(Array(zip(cards.prefix(3).indices, cards.prefix(3))), id: \.0) { index, card in
                 MealCardView(
-                    card: card,
+                    meal: card,
                     isTopCard: index == 0,
                     offset: index == 0 ? cardOffset : 0,
                     cornerRadius: cornerRadius,
@@ -162,9 +162,9 @@ struct MealsSelectionView_Previews: PreviewProvider {
     // Container ottimizzato per il preview
     struct MealsSelectionViewContainer: View {
         @State private var meals: [Meal] = [
-            Meal(id: 0, color: .blue, title: "Colazione", mealType: .breakfast),
-            Meal(id: 1, color: .red, title: "Pranzo", mealType: .lunch),
-            Meal(id: 2, color: .green, title: "Cena", mealType: .dinner)
+            Meal(id: 0, mealType: .breakfast),
+            Meal(id: 1, mealType: .lunch),
+            Meal(id: 2, mealType: .dinner)
         ]
         @State private var hasInteracted: Bool = false
         
