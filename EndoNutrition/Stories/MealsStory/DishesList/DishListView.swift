@@ -14,9 +14,8 @@ struct DishListView: View {
     
     var body: some View {
         VStack(spacing: 16) {
-            // Header con titolo
             HStack {
-                Text("Piatti")
+                Text("dishes.title".localized(table: "Meals"))
                     .font(.headline)
                     .fontWeight(.bold)
                 
