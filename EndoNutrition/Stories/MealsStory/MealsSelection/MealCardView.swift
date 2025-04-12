@@ -14,7 +14,6 @@ struct MealCardView: View {
     let isTopCard: Bool
     let offset: CGFloat
     let cornerRadius: CGFloat
-    let height: CGFloat
     let index: Int
     
     // Rendimento ottimizzato evitando ricalcoli inutili
@@ -29,8 +28,6 @@ struct MealCardView: View {
                     // Ottimizzazione rendering testo
                     .fixedSize(horizontal: false, vertical: true)
             )
-            .frame(height: height)
-            .padding(.horizontal)
             // Ottimizzazione shadow (raggio ridotto)
             .shadow(radius: 2)
             // Offset condizionale per evitare calcoli inutili
@@ -41,5 +38,5 @@ struct MealCardView: View {
 }
 
 #Preview {
-    MealCardView(card: Meal(id: 0, color: .red, title: "Pasto", mealType: .lunch), isTopCard: true, offset: 0, cornerRadius: 20, height: 450, index: 0)
+    MealCardView(card: Meal(id: 0, color: .red, title: "Pasto", mealType: .lunch), isTopCard: true, offset: 0, cornerRadius: 20, index: 0)
 }

@@ -21,7 +21,6 @@ struct MealsSelectionView: View {
     @State private var timerStarted = false
     
     // Costanti
-    private let cardHeight: CGFloat = 450
     private let cornerRadius: CGFloat = 20
     private let dragThreshold: CGFloat = 100
     private let hintOffset: CGFloat = -30
@@ -40,7 +39,6 @@ struct MealsSelectionView: View {
                     isTopCard: index == 0,
                     offset: index == 0 ? cardOffset : 0,
                     cornerRadius: cornerRadius,
-                    height: cardHeight,
                     index: index
                 )
                 .zIndex(Double(cards.count - index))
