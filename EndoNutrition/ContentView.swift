@@ -7,27 +7,34 @@
 
 import SwiftUI
 
+import SwiftUI
+
 struct ContentView: View {
     var body: some View {
         TabView {
-            MealsHomeView()
-                .tabItem {
-                    Image(systemName: "fork.knife")
-                    Text("meals.home.title".localized(table: "Meals"))
-                }
+            NavigationStack {
+                MealsHomeView()
+            }
+            .tabItem {
+                Image(systemName: "fork.knife")
+                Text("meals.home.title".localized(table: "Meals"))
+            }
             
-            ShoppingListHomeView()
-                .tabItem {
-                    Image(systemName: "cart")
-                    Text("shoppinglisthome.title".localized(table: "ShoppingList"))
-
-                }
-            DocumentsHomeView()
-                .tabItem {
-                    Image(systemName: "document")
-                    Text("documentshome.title".localized(table: "Documents"))
-
-                }
+            NavigationStack {
+                ShoppingListHomeView()
+            }
+            .tabItem {
+                Image(systemName: "cart")
+                Text("shoppinglisthome.title".localized(table: "ShoppingList"))
+            }
+            
+            NavigationStack {
+                DocumentsHomeView()
+            }
+            .tabItem {
+                Image(systemName: "document")
+                Text("documentshome.title".localized(table: "Documents"))
+            }
         }
     }
 }
