@@ -20,7 +20,6 @@ struct DishesFullListView: View {
             }
             .padding()
         }
-        .navigationTitle("Tutti i piatti")
     }
 }
 

@@ -26,7 +26,7 @@ struct DishListView: View {
                     navigateToFullList = true
                 }) {
                     HStack(spacing: 4) {
-                        Text("Vedi tutti")
+                        Text("dishes.see.all".localized(table: "Meals"))
                             .font(.subheadline)
                             .fontWeight(.semibold)
                         
