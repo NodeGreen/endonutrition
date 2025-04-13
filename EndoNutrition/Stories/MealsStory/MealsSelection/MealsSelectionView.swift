@@ -2,107 +2,150 @@ import SwiftUI
 import Combine
 
 struct MealsSelectionView: View {
-    // MARK: - Properties
-    
-    // Binding per i dati delle card
     @Binding var cards: [Meal]
     @Binding var hasInteracted: Bool
-
     
-    // Stati UI ottimizzati con @State per lo storage locale
-    @State private var cardOffset: CGFloat = 0
+    @State private var cardPositions: [CardPosition] = []
     @State private var isDragging = false
     @State private var isShowingHint = false
-    
-    // Timer ottimizzato come AnyCancellable
-    @State private var hintTimer: AnyCancellable?
-    
-    // Proprietà misurabili per ottimizzare le prestazioni
     @State private var timerStarted = false
     
-    // Costanti
+    @State private var hintTimer: AnyCancellable?
+    
     private let cornerRadius: CGFloat = 20
     private let dragThreshold: CGFloat = 100
     private let hintOffset: CGFloat = -30
+    private let rotationFactor: CGFloat = 0.1
     
-    // Callback ottimizzato (Sendable per la concorrenza moderna)
     var onCardSelected: ((Meal) -> Void)?
     
-    // MARK: - Body
+    private struct CardPosition: Identifiable {
+        let id = UUID()
+        var offsetX: CGFloat = 0
+        var offsetY: CGFloat = 0
+        var rotation: Double = 0
+        var index: Int
+        var isAnimating = false
+    }
     
     var body: some View {
         ZStack {
-            // Ottimizzazione del rendering: solo le card visibili
-            ForEach(Array(zip(cards.prefix(3).indices, cards.prefix(3))), id: \.0) { index, card in
-                MealCardView(
-                    meal: card,
-                    isTopCard: index == 0,
-                    offset: index == 0 ? cardOffset : 0,
-                    cornerRadius: cornerRadius,
-                    index: index
-                )
-                .zIndex(Double(cards.count - index))
-                // Applica il gesto solo alla prima card
-                .if(index == 0) { view in
-                    view.gesture(dragGesture)
+            if !cards.isEmpty && !cardPositions.isEmpty {
+                ForEach(Array(cardPositions.prefix(3).enumerated()), id: \.element.id) { i, position in
+                    if position.index < cards.count {
+                        MealCardView(
+                            meal: cards[position.index],
+                            isTopCard: i == 0,
+                            offset: position.offsetX,
+                            cornerRadius: cornerRadius,
+                            index: i,
+                            offsetY: position.offsetY
+                        )
+                        .rotationEffect(.degrees(position.rotation))
+                        .zIndex(Double(100 - i))
+                        .gesture(i == 0 ? dragGesture : nil)
+                        .transition(.identity)
+                    }
                 }
             }
         }
+        .animation(nil, value: cardPositions.count)
         .onAppear {
-            // Notifica la selezione iniziale, evitando operazioni costose ripetute
-            if let firstCard = cards.first, !timerStarted {
+            resetCardPositions()
+        }
+        .onChange(of: cards) { _ in
+            resetCardPositions()
+        }
+        .onDisappear {
+            hintTimer?.cancel()
+        }
+    }
+    
+    private func resetCardPositions() {
+        if cards.isEmpty {
+            cardPositions = []
+            return
+        }
+        
+        cardPositions = []
+        for i in 0..<min(cards.count, 3) {
+            cardPositions.append(CardPosition(index: i))
+        }
+        
+        if let firstCard = cards.first, !timerStarted {
+            DispatchQueue.main.async {
                 onCardSelected?(firstCard)
                 setupHintTimer()
                 timerStarted = true
             }
         }
-        .onDisappear {
-            // Pulizia esplicita delle risorse
-            hintTimer?.cancel()
-        }
     }
     
-    // MARK: - Metodi privati
-    
-    // Setup ottimizzato del timer di suggerimento
     private func setupHintTimer() {
+        hintTimer?.cancel()
         hintTimer = Timer.publish(every: 5, on: .main, in: .common)
             .autoconnect()
             .sink { _ in
-                // Verifica delle condizioni per mostrare il suggerimento
-                if !self.isDragging && !self.isShowingHint && !self.hasInteracted {
-                    self.showSwipeHint()
+                if !isDragging && !isShowingHint && !hasInteracted {
+                    showSwipeHint()
                 }
             }
     }
     
-    // Ottimizzazione dell'animazione di suggerimento
     private func showSwipeHint() {
         isShowingHint = true
         
-        // Animazione fluida, evitando delay chains quando possibile
-        withAnimation(.easeInOut(duration: 0.4)) {
-            cardOffset = hintOffset
+        guard !cardPositions.isEmpty else { return }
+        
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+            cardPositions[0].offsetX = hintOffset
+            cardPositions[0].rotation = -5
         }
         
-        // Task asincrono per ritardare il reset con meno overhead
-        Task { @MainActor in
-            try? await Task.sleep(nanoseconds: 1_000_000_000)
-            
-            withAnimation(.easeInOut(duration: 0.3)) {
-                cardOffset = 0
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                if !cardPositions.isEmpty {
+                    cardPositions[0].offsetX = 0
+                    cardPositions[0].offsetY = 0
+                    cardPositions[0].rotation = 0
+                }
             }
             
-            try? await Task.sleep(nanoseconds: 500_000_000)
-            isShowingHint = false
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                isShowingHint = false
+            }
         }
     }
     
-    // Ottimizzazione del gesto di trascinamento
+    private func moveToNextCard() {
+        guard cards.count > 1 else { return }
+        
+        if !cardPositions.isEmpty {
+            let currentTopIndex = cardPositions[0].index
+            let nextIndex = (currentTopIndex + 1) % cards.count
+            
+            var updatedPositions: [CardPosition] = []
+            
+            for i in 1..<cardPositions.count {
+                var newPosition = cardPositions[i]
+                newPosition.offsetX = 0
+                newPosition.offsetY = 0
+                newPosition.rotation = 0
+                updatedPositions.append(newPosition)
+            }
+            
+            let newCardIndex = (nextIndex + updatedPositions.count) % cards.count
+            updatedPositions.append(CardPosition(index: newCardIndex))
+            
+            cardPositions = updatedPositions
+            
+            onCardSelected?(cards[nextIndex])
+        }
+    }
+    
     private var dragGesture: some Gesture {
-        DragGesture(minimumDistance: 5) // Evita di attivare il gesto per movimenti piccoli
+        DragGesture(minimumDistance: 5, coordinateSpace: .local)
             .onChanged { value in
-                // Ottimizzazione della logica durante il trascinamento
                 if isShowingHint {
                     isShowingHint = false
                 }
@@ -112,40 +155,51 @@ struct MealsSelectionView: View {
                 }
                 
                 isDragging = true
-                cardOffset = value.translation.width
+                
+                if !cardPositions.isEmpty {
+                    cardPositions[0].offsetX = value.translation.width
+                    cardPositions[0].offsetY = min(0, value.translation.height)
+                    
+                    let maxRotation: Double = 12
+                    let horizontalRotation = Double(value.translation.width * rotationFactor)
+                    cardPositions[0].rotation = min(maxRotation, max(-maxRotation, horizontalRotation))
+                }
             }
             .onEnded { value in
                 isDragging = false
                 
-                // Ottimizzazione della logica di fine trascinamento
-                let isDraggedPastThreshold = abs(value.translation.width) > dragThreshold
+                let horizontalDragPastThreshold = abs(value.translation.width) > dragThreshold
+                let verticalDragPastThreshold = value.translation.height < -dragThreshold
                 
-                if isDraggedPastThreshold {
-                    let direction = value.translation.width > 0 ? 1000.0 : -1000.0
-                    
-                    withAnimation(.easeOut(duration: 0.1)) {
-                        cardOffset = direction
-                    }
-                    
-                    // Ottimizzazione dell'aggiornamento delle card
-                    Task { @MainActor in
-                        try? await Task.sleep(nanoseconds: 100_000_000)
+                if horizontalDragPastThreshold || verticalDragPastThreshold {
+                    if !cardPositions.isEmpty {
+                        let direction: CGFloat = value.translation.width > 0 ? 1000.0 : -1000.0
+                        let finalRotation: Double = value.translation.width > 0 ? 12 : -12
                         
-                        // Aggiornamento atomico dello stato
-                        if cards.isEmpty { return }
+                        if verticalDragPastThreshold {
+                            withAnimation(.spring(response: 0.25, dampingFraction: 0.7)) {
+                                cardPositions[0].offsetY = -1000
+                                cardPositions[0].rotation = 0
+                            }
+                        } else {
+                            withAnimation(.spring(response: 0.25, dampingFraction: 0.7)) {
+                                cardPositions[0].offsetX = direction
+                                cardPositions[0].rotation = finalRotation
+                            }
+                        }
                         
-                        let topCard = cards.removeFirst()
-                        cards.append(topCard)
-                        cardOffset = 0
-                        
-                        // Notifica la nuova card selezionata
-                        if let newTopCard = cards.first {
-                            onCardSelected?(newTopCard)
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                            moveToNextCard()
                         }
                     }
                 } else {
-                    // Reset immediato senza animazione
-                    cardOffset = 0
+                    if !cardPositions.isEmpty {
+                        withAnimation(.spring(response: 0.25, dampingFraction: 0.7)) {
+                            cardPositions[0].offsetX = 0
+                            cardPositions[0].offsetY = 0
+                            cardPositions[0].rotation = 0
+                        }
+                    }
                 }
             }
     }
