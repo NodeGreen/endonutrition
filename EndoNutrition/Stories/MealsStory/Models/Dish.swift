@@ -66,7 +66,7 @@ struct Dish: Identifiable {
         let description: String
     }
     
-    enum ExecutionTime {
+    enum ExecutionTime: String {
         case fast
         case medium
         case slow

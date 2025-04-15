@@ -42,7 +42,7 @@ struct Meal: Identifiable, Equatable {
     }
 }
 
-enum MealType: Codable {
+enum MealType: String, Codable {
     case breakfast
     case lunch
     case dinner

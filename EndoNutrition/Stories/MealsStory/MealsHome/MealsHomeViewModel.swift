@@ -2,13 +2,23 @@ import SwiftUI
 import Foundation
 
 class MealsHomeViewModel: ObservableObject {
-    // Le proprietà pubblicate
+    private let dataManager = DataManager.shared
+    private let mealRepository: MealRepository
+    private let dishRepository: DishRepository
     
     var localMeals: [Meal] = []
     
     @Published var selectedMeal: Meal = Meal(id: 0, mealType: .breakfast)
     @Published var mealDishes: [Dish] = []
     @Published var hasInteracted: Bool = false
+    
+    init() {
+        self.mealRepository = dataManager.mealRepository
+        self.dishRepository = dataManager.dishRepository
+        
+        // Inizializza il database al primo avvio
+        dataManager.setupDatabase()
+    }
          
     func setup() {
         self.selectedMeal = getSelectedMealType()
@@ -23,8 +33,7 @@ class MealsHomeViewModel: ObservableObject {
     }
     
     private func reorderMealsWithSelected(_ selectedMeal: Meal) -> [Meal] {
-
-        let originalMeals = meals
+        let originalMeals = mealRepository.fetchAllMeals()
         
         guard let selectedIndex = originalMeals.firstIndex(where: { $0.id == selectedMeal.id }) else {
             return originalMeals
@@ -48,7 +57,6 @@ class MealsHomeViewModel: ObservableObject {
     private func getSelectedMealType() -> Meal {
         var selectedMealType: MealType = .breakfast
         let currentHour = Calendar.current.component(.hour, from: Date())
-
         if currentHour < 12 {
             selectedMealType = .breakfast
         } else if currentHour < 18 {
@@ -57,10 +65,36 @@ class MealsHomeViewModel: ObservableObject {
             selectedMealType = .dinner
         }
         
-        return meals.filter({$0.mealType == selectedMealType}).first ?? meals[0]
+        let meals = mealRepository.fetchAllMeals()
+        return meals.first(where: { $0.mealType == selectedMealType }) ?? meals[0]
     }
     
     private func getMealDishes() -> [Dish] {
-        dishes.filter({ $0.mealType == selectedMeal.mealType })
+        dishRepository.getDishes(byMealType: selectedMeal.mealType)
+    }
+    
+    // MARK: - CRUD Operations
+    
+    func addNewDish(_ dish: Dish) {
+        if dishRepository.getDish(byName: dish.name) != nil {
+            updateDish(dish)
+        } else {
+            _ = dishRepository.createDish(from: dish)
+            self.mealDishes = getMealDishes()
+        }
+    }
+    
+    func updateDish(_ dish: Dish) {
+        _ = dishRepository.updateDish(dish)
+        self.mealDishes = getMealDishes()
+    }
+    
+    func deleteDish(name: String) {
+        dishRepository.deleteDish(byName: name)
+        self.mealDishes = getMealDishes()
+    }
+    
+    func getDishByName(_ name: String) -> Dish? {
+        dishRepository.getDish(byName: name)
     }
 }
