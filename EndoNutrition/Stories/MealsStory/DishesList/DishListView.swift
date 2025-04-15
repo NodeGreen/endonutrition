@@ -22,41 +22,49 @@ struct DishListView: View {
                 
                 Spacer()
                 
-                Button(action: {
-                    navigateToFullList = true
-                }) {
-                    HStack(spacing: 4) {
-                        Text("dishes.see.all".localized(table: "Meals"))
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                        
-                        Image(systemName: "chevron.right.circle.fill")
-                            .font(.system(size: 16))
+                if !dishes.isEmpty {
+                    Button(action: {
+                        navigateToFullList = true
+                    }) {
+                        HStack(spacing: 4) {
+                            Text("dishes.see.all".localized(table: "Meals"))
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                            
+                            Image(systemName: "chevron.right.circle.fill")
+                                .font(.system(size: 16))
+                        }
+                        .foregroundColor(Color(UIColor.label))
+                        .padding(.vertical, 6)
+                        .padding(.horizontal, 12)
+                        .background(
+                            Capsule()
+                                .fill(Color.darkModeBgColor)
+                                .shadow(radius: 2, x: 0, y: 1)
+                        )
                     }
-                    .foregroundColor(Color(UIColor.label))
-                    .padding(.vertical, 6)
-                    .padding(.horizontal, 12)
-                    .background(
-                        Capsule()
-                            .fill(Color.darkModeBgColor)
-                            .shadow(radius: 2, x: 0, y: 1)
-                    )
+                    .buttonStyle(PlainButtonStyle())
                 }
-                .buttonStyle(PlainButtonStyle())
             }
             .padding(.horizontal)
             .navigationDestination(isPresented: $navigateToFullList) {
                 DishesFullListView(dishes: $dishes)
             }
             
-            ScrollView(.horizontal, showsIndicators: false) {
-                LazyHStack(spacing: 12) {
-                    ForEach(Array(dishes.prefix(10))) { dish in
-                        DishCardView(dish: dish)
-                            .aspectRatio(1, contentMode: .fill)
-                    }
-                    
-                }.padding(.horizontal)
+            if dishes.isEmpty {
+                Spacer()
+                AddDishButton()
+                    .padding()
+                Spacer()
+            } else {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    LazyHStack(spacing: 12) {
+                        ForEach(Array(dishes.prefix(10))) { dish in
+                            DishCardView(dish: dish)
+                                .aspectRatio(1, contentMode: .fill)
+                        }
+                    }.padding(.horizontal)
+                }
             }
         }
     }
@@ -74,25 +82,13 @@ struct DishListView_Previews: PreviewProvider {
     // Container ottimizzato per il preview
     struct MealsSelectionViewContainer: View {
         
-        @State private var dishes: [Dish] = [Dish(
-            name: "Pancake integrali",
-            mealType: .breakfast,
-            executionTime: .medium,
-            ingredients: [
-                Dish.Ingredients(name: "Farina integrale", quantity: 150, quantityType: .grams),
-                Dish.Ingredients(name: "Uova", quantity: 2, quantityType: .number),
-                Dish.Ingredients(name: "Latte", quantity: 200, quantityType: .grams),
-                Dish.Ingredients(name: "Miele", quantity: 30, quantityType: .grams)
-            ], description: "test descrizione"
-        )]
+        @State private var dishes: [Dish] = []
         
         var body: some View {
             DishListView(dishes: $dishes)
                 .previewLayout(.sizeThatFits)
                 .padding()
                 .background(Color(.systemGroupedBackground))
-        
         }
     }
 }
-
