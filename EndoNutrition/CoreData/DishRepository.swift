@@ -5,7 +5,6 @@
 //  Created by Endo on 15/04/25.
 //
 
-
 import Foundation
 import CoreData
 
@@ -50,12 +49,22 @@ class DishRepository {
         }
         
         // Salva i fatti nutrizionali come data JSON
-        if let nutritionData = try? JSONSerialization.data(withJSONObject: dish.nutritionFacts ?? "", options: []) {
-            entity.nutritionFacts = nutritionData
+        if let nutritionFacts = dish.nutritionFacts, !nutritionFacts.isEmpty {
+            // Assicuriamoci che tutti i valori siano stringhe
+            let safeNutritionFacts = nutritionFacts.mapValues { value -> String in
+                if let stringValue = value as? String {
+                    return stringValue
+                }
+                return String(describing: value)
+            }
+            
+            if let nutritionData = try? JSONSerialization.data(withJSONObject: safeNutritionFacts, options: []) {
+                entity.nutritionFacts = nutritionData
+            }
         }
         
         // Crea le entità dei passaggi di preparazione
-        if let preparationSteps = dish.preparationSteps {
+        if let preparationSteps = dish.preparationSteps, !preparationSteps.isEmpty {
             for (index, step) in preparationSteps.enumerated() {
                 let stepEntity = coreDataManager.create(PreparationStepEntity.self)
                 stepEntity.title = step.title
@@ -97,8 +106,20 @@ class DishRepository {
         }
         
         // Aggiorna i fatti nutrizionali
-        if let nutritionData = try? JSONSerialization.data(withJSONObject: dish.nutritionFacts ?? "", options: []) {
-            entity.nutritionFacts = nutritionData
+        if let nutritionFacts = dish.nutritionFacts, !nutritionFacts.isEmpty {
+            // Assicuriamoci che tutti i valori siano stringhe
+            let safeNutritionFacts = nutritionFacts.mapValues { value -> String in
+                if let stringValue = value as? String {
+                    return stringValue
+                }
+                return String(describing: value)
+            }
+            
+            if let nutritionData = try? JSONSerialization.data(withJSONObject: safeNutritionFacts, options: []) {
+                entity.nutritionFacts = nutritionData
+            }
+        } else {
+            entity.nutritionFacts = nil
         }
         
         // Elimina i passaggi di preparazione esistenti
@@ -109,7 +130,7 @@ class DishRepository {
         }
         
         // Crea i nuovi passaggi di preparazione
-        if let preparationSteps = dish.preparationSteps {
+        if let preparationSteps = dish.preparationSteps, !preparationSteps.isEmpty {
             for (index, step) in preparationSteps.enumerated() {
                 let stepEntity = coreDataManager.create(PreparationStepEntity.self)
                 stepEntity.title = step.title
@@ -164,9 +185,13 @@ class DishRepository {
         
         // Converti i fatti nutrizionali
         var nutritionFacts: [String: String] = [:]
-        if let nutritionData = entity.nutritionFacts {
-            if let dict = try? JSONSerialization.jsonObject(with: nutritionData, options: []) as? [String: String] {
-                nutritionFacts = dict
+        if let nutritionData = entity.nutritionFacts, !nutritionData.isEmpty {
+            do {
+                if let dict = try JSONSerialization.jsonObject(with: nutritionData, options: []) as? [String: String] {
+                    nutritionFacts = dict
+                }
+            } catch {
+                print("Errore nel convertire i dati nutrizionali JSON: \(error)")
             }
         }
         
@@ -178,9 +203,9 @@ class DishRepository {
             mealType: mealType,
             executionTime: executionTime,
             ingredients: ingredients,
-            description: entity.dishDescription ?? "",
-            nutritionFacts: nutritionFacts,
-            preparationSteps: preparationSteps
+            description: entity.dishDescription,
+            nutritionFacts: nutritionFacts.isEmpty ? nil : nutritionFacts,
+            preparationSteps: preparationSteps.isEmpty ? nil : preparationSteps
         )
     }
     
@@ -191,7 +216,7 @@ class DishRepository {
         
         if count == 0 {
             for dish in dishes {
-                createDish(from: dish)
+                _ = createDish(from: dish)
             }
         }
     }

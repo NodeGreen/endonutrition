@@ -3,6 +3,10 @@ import SwiftUI
 struct DishDetailsView: View {
     let dish: Dish
     @Environment(\.colorScheme) private var colorScheme
+    @State private var showingEditSheet = false
+    @State private var showingDeleteAlert = false
+    @StateObject private var viewModel = MealsHomeViewModel()
+    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         ScrollView {
@@ -18,6 +22,37 @@ struct DishDetailsView: View {
             .padding(.bottom, 30)
         }
         .background(Color(UIColor.systemGroupedBackground))
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Menu {
+                    Button(action: {
+                        showingEditSheet = true
+                    }) {
+                        Label("Edit", systemImage: "pencil")
+                    }
+                    
+                    Button(role: .destructive, action: {
+                        showingDeleteAlert = true
+                    }) {
+                        Label("Delete", systemImage: "trash")
+                    }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                }
+            }
+        }
+        .sheet(isPresented: $showingEditSheet) {
+            AddDishView(editDish: dish)
+        }
+        .alert("Delete Dish", isPresented: $showingDeleteAlert) {
+            Button("Cancel", role: .cancel) { }
+            Button("Delete", role: .destructive) {
+                viewModel.deleteDish(name: dish.name)
+                dismiss()
+            }
+        } message: {
+            Text("Are you sure you want to delete this dish? This action cannot be undone.")
+        }
     }
 }
 
@@ -333,18 +368,5 @@ struct RoundedCorner: Shape {
             ))
         }
         .preferredColorScheme(.light)
-        
-        NavigationStack {
-            DishDetailsView(dish: Dish(
-                name: "Pancake integrali",
-                mealType: .breakfast,
-                executionTime: .medium,
-                ingredients: [],
-                description: "Deliziosi pancake integrali perfetti per una colazione sana ed energetica.",
-                nutritionFacts: nil,
-                preparationSteps: nil
-            ))
-        }
-        .preferredColorScheme(.dark)
     }
 }
