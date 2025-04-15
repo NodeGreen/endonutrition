@@ -126,6 +126,7 @@ struct IngredientItemView: View {
             Text("\(Int(ingredient.quantity)) \(ingredient.quantityType)")
                 .font(.caption2)
                 .foregroundColor(Color(UIColor.secondaryLabel))
+            Spacer()
         }
         .frame(width: 80)
     }
