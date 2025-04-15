@@ -13,6 +13,9 @@ struct Dish: Identifiable {
     let mealType: MealType
     let executionTime: ExecutionTime
     let ingredients: [Ingredients]
+    let description: String?
+    let nutritionFacts: [String: String]?
+    let preparationSteps: [PreparationStep]?
     
     var ingredientsCount: Int {
         ingredients.count
@@ -40,6 +43,15 @@ struct Dish: Identifiable {
         }
     }
     
+    init(name: String, mealType: MealType, executionTime: ExecutionTime, ingredients: [Ingredients], description: String? = nil, nutritionFacts: [String: String]? = nil, preparationSteps: [PreparationStep]? = nil) {
+        self.name = name
+        self.mealType = mealType
+        self.executionTime = executionTime
+        self.ingredients = ingredients
+        self.description = description
+        self.nutritionFacts = nutritionFacts
+        self.preparationSteps = preparationSteps
+    }
     
     struct Ingredients: Identifiable {
         let id = UUID()
@@ -48,16 +60,21 @@ struct Dish: Identifiable {
         let quantityType: QuantityType
     }
     
+    struct PreparationStep: Identifiable {
+        let id = UUID()
+        let title: String
+        let description: String
+    }
+    
     enum ExecutionTime {
         case fast
         case medium
         case slow
     }
     
-    enum QuantityType {
-        case grams
-        case number
+    enum QuantityType: String {
+        case grams = "g"
+        case number = "pz"
     }
-
 }
 

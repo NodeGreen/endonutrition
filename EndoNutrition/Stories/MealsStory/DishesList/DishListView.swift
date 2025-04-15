@@ -83,7 +83,7 @@ struct DishListView_Previews: PreviewProvider {
                 Dish.Ingredients(name: "Uova", quantity: 2, quantityType: .number),
                 Dish.Ingredients(name: "Latte", quantity: 200, quantityType: .grams),
                 Dish.Ingredients(name: "Miele", quantity: 30, quantityType: .grams)
-            ]
+            ], description: "test descrizione"
         )]
         
         var body: some View {
